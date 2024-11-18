@@ -22,7 +22,7 @@ func main() {
 
 	
 	if len(os.Args) < 3 {
-		fmt.Println(red("Usage: vulcan <project_name> <source_terraform_directory>"))
+		fmt.Println(red("Usage: vulcan <project_name> <source_template_directory>"))
 		os.Exit(1)
 	}
 

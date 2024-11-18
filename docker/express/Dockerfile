@@ -5,4 +5,4 @@ COPY package*.json .
 RUN npm ci ## clean install the dependencies
 COPY . .
 EXPOSE 3000
-RUN npm run start
+CMD [ "npm", "run", "start" ]

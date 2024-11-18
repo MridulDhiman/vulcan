@@ -2,5 +2,5 @@ run: build
 		@./bin/asauchi
 
 build:
-		@go build -o bin/asauchi.exe .
+		@go build -o bin/vulcan.exe .
 

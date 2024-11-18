@@ -22,11 +22,11 @@ func main() {
 
 	
 	if len(os.Args) < 3 {
-		fmt.Println(red("Usage: asauchi <project_name> <source_terraform_directory>"))
+		fmt.Println(red("Usage: vulcan <project_name> <source_terraform_directory>"))
 		os.Exit(1)
 	}
 
-	cwd, errr:= os.Executable() // it will give /asauchi/bin/asauchi.exe
+	cwd, errr:= os.Executable() // it will give /asauchi/bin/vulcan.exe
 	if errr != nil {
 		fmt.Println(red("Could not get executable's working directory"));
 		os.Exit(1)

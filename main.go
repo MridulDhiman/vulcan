@@ -14,6 +14,8 @@ type ScaffoldConfig struct {
 	SourceDirectory string
 }
 
+
+
 func main() {
 	green := color.New(color.FgGreen).SprintFunc()
 	red := color.New(color.FgRed).SprintFunc()
@@ -24,10 +26,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	cwd, errr:= os.Executable() // it will give /asauchi/bin/asauchi.exe
+	if errr != nil {
+		fmt.Println(red("Could not get executable's working directory"));
+		os.Exit(1)
+	}
 	
 	config := ScaffoldConfig{
 		ProjectName:     os.Args[1],
-		SourceDirectory: os.Args[2],
+		SourceDirectory: filepath.Join(cwd, "../..", os.Args[2]),
 	}
 
 	err := scaffoldProject(config)

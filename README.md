@@ -15,3 +15,8 @@
     ```bash
     vulcan <project-name> docker/express
     ```
+
+3. CI config.
+    - Build docker image and publish to docker hub on each push
+    `vulcan .github/workflows ci/publish-to-dockerhub`
+

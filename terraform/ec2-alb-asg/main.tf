@@ -7,18 +7,69 @@ provider "aws" {
 resource "aws_vpc" "tf-vpc" {
   cidr_block = var.vpc_cidr_block
 
+  ### enable DNS hostnames for the VPC
+  enable_dns_hostnames = true
+  enable_dns_support = true
+
   tags = {
     Name = "main_vpc"
   }
 }
 
-resource "aws_subnet" "tf-subnet" {
-  vpc_id = aws_vpc.tf-vpc.id
-  cidr_block = var.vpc_cidr_block
-  availability_zone = var.availability_zone
+# Create subnets in different AZs
+resource "aws_subnet" "tf-subnet-1" {
+  vpc_id            = aws_vpc.tf-vpc.id
+  cidr_block        = cidrsubnet(var.vpc_cidr_block, 8, 1)  # e.g., if vpc is 10.0.0.0/16, this will be 10.0.1.0/24
+  availability_zone = "${var.region}a"                       # First AZ in the region
+
   tags = {
-    Name = "tf-subnet"
+    Name = "tf-subnet-1"
   }
+}
+
+resource "aws_subnet" "tf-subnet-2" {
+  vpc_id            = aws_vpc.tf-vpc.id
+  cidr_block        = cidrsubnet(var.vpc_cidr_block, 8, 2)  # e.g., if vpc is 10.0.0.0/16, this will be 10.0.2.0/24
+  availability_zone = "${var.region}b"                       # Second AZ in the region
+
+  tags = {
+    Name = "tf-subnet-2"
+  }
+}
+
+
+# Internet Gateway(and route tables) for internet connectivity in the subnet
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.tf-vpc.id
+
+  tags = {
+    Name = "main"
+  }
+}
+
+# Route Table
+resource "aws_route_table" "main" {
+  vpc_id = aws_vpc.tf-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "main"
+  }
+}
+
+# Route Table Associations
+resource "aws_route_table_association" "subnet-1" {
+  subnet_id      = aws_subnet.tf-subnet-1.id
+  route_table_id = aws_route_table.main.id
+}
+
+resource "aws_route_table_association" "subnet-2" {
+  subnet_id      = aws_subnet.tf-subnet-2.id
+  route_table_id = aws_route_table.main.id
 }
 
 ## Security Groups 
@@ -51,12 +102,18 @@ resource "aws_security_group" "ec2_sg" {
   vpc_id      = aws_vpc.tf-vpc.id
 
   ingress {
-    from_port       = 80
-    to_port         = 80
+    from_port       = 3000
+    to_port         = 3000
     protocol        = "tcp"
     security_groups = [aws_security_group.alb_sg.id] ## allow HTTP traffic from Load Balancer
   }
 
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   //Outbound Rules
   egress {
     from_port   = 0
@@ -72,23 +129,27 @@ resource "aws_lb" "alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-
+  subnets            = [aws_subnet.tf-subnet-1.id, aws_subnet.tf-subnet-2.id]
 }
 
 
 ### Instance Target Group
 resource "aws_lb_target_group" "alb_tg" {
   name     = "alb-tg"
-  port     = 80
+  port     = 3000
   protocol = "HTTP"
   vpc_id   = aws_vpc.tf-vpc.id
 
-  health_check {
-    protocol = "HTTP"
-    port     = 3000
-    path     = "/health"
-    matcher  = "200"
-    interval = 300
+   health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    timeout             = 5
+    path                = "/"  # Adjust this to match your app's health check endpoint
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    matcher             = "200"
+    unhealthy_threshold = 2
   }
 }
 
@@ -108,20 +169,18 @@ resource "aws_lb_listener" "name" {
 
 
 resource "aws_launch_template" "ec2_template" {
-  name          = "ec2_template"
+  name_prefix =          "ec2_template"
   description   = "EC2 launch template for Auto Scaling Group"
   image_id      = var.ami_id
   instance_type = var.instance_type
-
+  key_name = var.key_name
   ## configure with ec2 security groups
   network_interfaces {
     security_groups             = [aws_security_group.ec2_sg.id]
     associate_public_ip_address = true
   }
 
-  user_data = file("main.sh")
-  
-
+  user_data = base64encode(file("main.sh"))
 }
 
 
@@ -130,7 +189,7 @@ resource "aws_autoscaling_group" "asg" {
   min_size = 1
   max_size = 3
   desired_capacity = 2
-  vpc_zone_identifier = [aws_subnet.tf-subnet.id]
+  vpc_zone_identifier = [aws_subnet.tf-subnet-1.id, aws_subnet.tf-subnet-2.id]
  
   target_group_arns = [aws_lb_target_group.alb_tg.arn]
 

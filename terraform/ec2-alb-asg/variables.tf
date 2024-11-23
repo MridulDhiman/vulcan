@@ -19,12 +19,7 @@ variable "vpc_cidr_block" {
   description = "CIDR block for a particular VPC"
 }
 
-variable "subnet_cidr_block" {
-    type = string
-    description = "CIDR block for subnet within VPC"
-}
-
-variable "availability_zone" {
+variable "key_name" {
   type = string
-  description = "Define the availability zone for subnet"
+  description = "Key Pair attached to EC2 for login access."
 }

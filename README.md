@@ -21,4 +21,7 @@
     ```bash
     vulcan .github/workflows ci/publish-to-dockerhub
     ```
-
+    - Manual Production Deployment to EKS Cluster through Github Actions
+    ```bash
+    vulcan .github/workflows ci/deploy-to-eks
+    ```

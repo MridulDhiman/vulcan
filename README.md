@@ -5,6 +5,10 @@
     ```bash
     vulcan <project-name> terraform/ec2-alb-asg
     ```
+    - Provision EC2 instance with EBS volume
+    ```bash
+    vulcan <project-name> terraform/ec2-ebs
+    ```
 
 2. Docker Config. 
     - Containerize Express javascript application

@@ -1,4 +1,32 @@
-### Simple scaffolding tool
+## Simple scaffolding tool
+
+- [Installation](#installation)
+- [Reference](#reference)
+- [Create Your Own Templates](#create-your-own-custom-templates)
+### Installation
+
+- Clone the repository
+
+```bash
+git clone https://github.com/MridulDhiman/vulcan.git
+```
+
+- Install `make` in your application using `chocolatey` in windows, and using Homebrew in Linux, MacOS.
+
+```bash
+choco install make ## Windows
+brew install make ### MacOS
+```
+
+- Build the binary of our application
+
+```bash
+make build
+```
+
+- Follow the reference and scaffold your templates 😁.
+
+### Reference
 
 1. Terraform config.
     - Provision EC2 with Application load balancer config. and auto scaling group setup
@@ -29,3 +57,7 @@
     ```bash
     vulcan .github/workflows ci/deploy-to-eks
     ```
+
+### Create Your Own Custom Templates
+
+Just create New Folder based on the template like CI, Docker, terraform etc. and create specific templates that you want to scaffold in your local system.

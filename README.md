@@ -53,7 +53,7 @@ make build
     ```bash
     vulcan .github/workflows ci/publish-to-dockerhub
     ```
-    - Manual Production Deployment to EKS Cluster through Github Actions
+    - Manual Production Deployment to EKS Cluster through Github Actions Dashboard
     ```bash
     vulcan .github/workflows ci/deploy-to-eks
     ```

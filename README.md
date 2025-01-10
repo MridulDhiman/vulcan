@@ -58,6 +58,12 @@ make build
     vulcan .github/workflows ci/deploy-to-eks
     ```
 
+3. Python related
+    - `__init__.py` in your directory 
+    ```bash
+    vulcan <directory-name> python/init
+    ```
+
 ### Create Your Own Custom Templates
 
 Just create New Folder based on the template like CI, Docker, terraform etc. and create specific templates that you want to scaffold in your local system.

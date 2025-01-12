@@ -63,6 +63,10 @@ make build
     ```bash
     vulcan <directory-name> python/init
     ```
+    - `__main__.py` in your directory 
+    ```bash
+    vulcan <directory-name> python/main
+    ```
 
 ### Create Your Own Custom Templates
 
